@@ -1,0 +1,7 @@
+
+# @package dset
+train: dataset/Libri2Mix/train-100
+valid: dataset/Libri2Mix/dev
+test: dataset/Libri2Mix/test
+mix_json: dataset/Libri2Mix/train-100/mix_both.json
+mix_dir:
