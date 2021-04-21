@@ -11,20 +11,22 @@ class Augmentor(object):
         self.cross_valid = cross_valid
         self.sample_rate = 8000
         self.type = augment_type
-
+        self.p = p
         wham_path = '../../librimix/data/wham_noise/cv' if self.cross_valid else '../../librimix/data/wham_noise/tr'
         # wham_path = r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\librimix\data\wham_noise\tr'
         if self.type == 'spec_aug':
             raise NotImplementedError()
         elif self.type == 'background':
-            raise NotImplementedError()
+            self.augment = Compose([
+                AddBackgroundNoise(sounds_path=wham_path, min_snr_in_db=0, max_snr_in_db=5, p=self.p)
+            ])
         elif self.type == 'reverb':
             self.augment = AudioEffectsChain().reverb(reverberance=random.randrange(50, 100),
                                                       room_scale=random.randrange(50,100),
                                                       stereo_depth=random.randrange(50),
                                                      )
         elif self.type == 'normal':
-            self.p = 0.2
+            
             self.augment = Compose([
                 AddBackgroundNoise(sounds_path=wham_path, min_snr_in_db=0, max_snr_in_db=5, p=self.p),
                 AddGaussianSNR(min_SNR=0.001, max_SNR=0.25, p=self.p),
@@ -37,7 +39,7 @@ class Augmentor(object):
                 # TimeStretch(min_rate=0.8, max_rate=1.25, leave_length_unchanged=True, p=self.p)
             ])
         elif self.type == 'distort':
-            self.p = 0.8
+
             self.augment = Compose([
                 PitchShift(min_semitones=-4, max_semitones=4, p=self.p),
                 TimeStretch(min_rate=0.8, max_rate=1.25, leave_length_unchanged=True, p=self.p)
@@ -54,7 +56,7 @@ class Augmentor(object):
                 transformed = torch.Tensor(self.augment(s.numpy()))
                 augment_sources.append(transformed)
             self.reverb_randomize()
-        else: # type 'normal' or 'distort'
+        else: # type 'normal' or 'distort' or 'background'
             for i, s in enumerate(sources):
                 transformed = torch.Tensor(self.augment(s.numpy(), sample_rate=self.sample_rate))
                 augment_sources.append(transformed)
