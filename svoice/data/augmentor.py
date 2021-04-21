@@ -13,7 +13,7 @@ class Augmentor(object):
         self.type = augment_type
 
         wham_path = '../../librimix/data/wham_noise/cv' if self.cross_valid else '../../librimix/data/wham_noise/tr'
-        wham_path = r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\librimix\data\wham_noise\tr'
+        # wham_path = r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\librimix\data\wham_noise\tr'
         if self.type == 'spec_aug':
             raise NotImplementedError()
         elif self.type == 'background':
