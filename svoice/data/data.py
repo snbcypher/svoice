@@ -16,9 +16,13 @@ import librosa
 import numpy as np
 import torch
 import torch.utils.data as data
+import torchaudio
+import warnings
+
 
 from .preprocess import preprocess_one_dir
 from .audio import Audioset
+from .augmentor import Augmentor
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +32,7 @@ def sort(infos): return sorted(
 
 
 class Trainset:
-    def __init__(self, json_dir, sample_rate=16000, segment=4.0, stride=1.0, pad=True):
+    def __init__(self, json_dir, sample_rate=16000, segment=4.0, stride=1.0, pad=True, augment_type=None, p=None):
         mix_json = os.path.join(json_dir, 'mix.json')
         s_jsons = list()
         s_infos = list()
@@ -56,11 +60,22 @@ class Trainset:
         # verify all sets has the same size
         for s in self.sets:
             assert len(s) == len(self.mix_set)
+        
+        # data augmentation
+        self.augmentor = Augmentor(augment_type, p, cross_valid=False)
 
     def __getitem__(self, index):
-        mix_sig = self.mix_set[index]
-        tgt_sig = [self.sets[i][index] for i in range(len(self.sets))]
-        return self.mix_set[index], torch.LongTensor([mix_sig.shape[0]]), torch.stack(tgt_sig)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            mix_sig, tgt_sig = self.augmentor.augment_samples([self.sets[i][index] for i in range(len(self.sets))])
+            # print(index)
+            # if index < 19200 :
+            #     torchaudio.save(r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\svoice\egs\distort_mix.wav', mix_sig, sample_rate=8000)
+            #     torchaudio.save(r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\svoice\egs\distort_s1.wav', tgt_sig[0], sample_rate=8000)
+            #     torchaudio.save(r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\svoice\egs\distort_s2.wav', tgt_sig[1], sample_rate=8000)
+            #     print('saved to test_mix.wav')
+            #     raise
+        return mix_sig, torch.LongTensor([mix_sig.shape[0]]), torch.stack(tgt_sig)
 
     def __len__(self):
         return len(self.mix_set)

@@ -17,6 +17,7 @@ from omegaconf import DictConfig, OmegaConf
 import hydra
 
 from svoice.executor import start_ddp_workers
+from augment_cfg import Cfg
 
 logger = logging.getLogger(__name__)
 
@@ -60,8 +61,8 @@ def run(args):
     args.batch_size //= distrib.world_size
 
     # Building datasets and loaders
-    tr_dataset = Trainset(
-        args.dset.train, sample_rate=args.sample_rate, segment=args.segment, stride=args.stride, pad=args.pad)
+    tr_dataset = Trainset(args.dset.train, sample_rate=args.sample_rate, segment=args.segment, stride=args.stride,
+                          pad=args.pad, augment_type=Cfg.augment, p=Cfg.p) # TODO HERE
     tr_loader = distrib.loader(
         tr_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
 
