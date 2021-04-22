@@ -68,12 +68,11 @@ class Trainset:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             mix_sig, tgt_sig = self.augmentor.augment_samples([self.sets[i][index] for i in range(len(self.sets))])
-            # print(index)
             # if index < 19200 :
-            #     torchaudio.save(r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\svoice\egs\distort_mix.wav', mix_sig, sample_rate=8000)
-            #     torchaudio.save(r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\svoice\egs\distort_s1.wav', tgt_sig[0], sample_rate=8000)
-            #     torchaudio.save(r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\svoice\egs\distort_s2.wav', tgt_sig[1], sample_rate=8000)
-            #     print('saved to test_mix.wav')
+            #     torchaudio.save(r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\svoice\egs\mix_%i.wav' % index, mix_sig, sample_rate=8000)
+            #     torchaudio.save(r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\svoice\egs\s1_%i.wav' % index, tgt_sig[0], sample_rate=8000)
+            #     torchaudio.save(r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\svoice\egs\s2_%i.wav' % index, tgt_sig[1], sample_rate=8000)
+            #     print('saved')
             #     raise
         return mix_sig, torch.LongTensor([mix_sig.shape[0]]), torch.stack(tgt_sig)
 
