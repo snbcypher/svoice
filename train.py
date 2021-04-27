@@ -62,7 +62,7 @@ def run(args):
 
     # Building datasets and loaders
     tr_dataset = Trainset(args.dset.train, sample_rate=args.sample_rate, segment=args.segment, stride=args.stride,
-                          pad=args.pad, augment_type=Cfg.augment, p=Cfg.p) # TODO HERE
+                          pad=args.pad, augment_type=args.augment, p=args.p)
     tr_loader = distrib.loader(
         tr_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
 
