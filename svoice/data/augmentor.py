@@ -71,7 +71,7 @@ class Augmentor(object):
                     self.augment.freeze_parameters() # make sure all other sources gets the same augmentation
             self.augment.unfreeze_parameters() # lets the next augmentation be different
         else:
-            raise ValueError('Did not recognize augmentation type. Received %s, expected 'wham_weak', 'wham_strong', 'reverb_weak', 'reverb_strong', 'cascade', 'distort', or 'none'." % self.type')
+            raise ValueError("Did not recognize augmentation type. Received %s, expected 'wham_weak', 'wham_strong', 'reverb_weak', 'reverb_strong', 'cascade', 'distort', or 'none'." % self.type)
         augment_mix = sum(augment_sources)
         assert augment_mix.shape[0] == len(augment_sources[0]), "mixture length does not match length of sources, %i, %i" %  (augment_mix.shape[0], len(augment_sources[0]))
         return(augment_mix, augment_sources)
