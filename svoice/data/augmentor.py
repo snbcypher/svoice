@@ -13,16 +13,25 @@ class Augmentor(object):
         self.type = augment_type
         self.p = p
         wham_path = '../../../librimix/data/wham_noise/cv' if self.cross_valid else '../../../librimix/data/wham_noise/tr'
-        if self.type == 'background':
+        if self.type == 'wham_weak':
             self.augment = Compose([
-                AddBackgroundNoise(sounds_path=wham_path, min_snr_in_db=0, max_snr_in_db=5, p=self.p)
+                AddBackgroundNoise(sounds_path=wham_path, min_snr_in_db=5, max_snr_in_db=15, p=1)
             ])
-        elif self.type == 'reverb':
-            self.augment = AudioEffectsChain().reverb(reverberance=random.randrange(50, 100),
-                                                      room_scale=random.randrange(50,100),
-                                                      stereo_depth=random.randrange(50),
+        elif self.type == 'wham_strong':
+            self.augment = Compose([
+                AddBackgroundNoise(sounds_path=wham_path, min_snr_in_db=2, max_snr_in_db=7, p=1)
+            ])
+        elif self.type == 'reverb_weak':
+            self.augment = AudioEffectsChain().reverb(reverberance=random.randrange(0, 50),
+                                                      room_scale=random.randrange(0,50),
+                                                      stereo_depth=random.randrange(0, 50),
                                                      )
-        elif self.type == 'normal':
+        elif self.type == 'reverb_strong':
+            self.augment = AudioEffectsChain().reverb(reverberance=random.randrange(50, 100),
+                                                      room_scale=random.randrange(50, 100),
+                                                      stereo_depth=random.randrange(50, 100),
+                                                      )
+        elif self.type == 'cascade':
             self.augment = Compose([
                 AddBackgroundNoise(sounds_path=wham_path, min_snr_in_db=0, max_snr_in_db=5, p=self.p),
                 AddGaussianSNR(min_SNR=0.001, max_SNR=0.25, p=self.p),
@@ -40,7 +49,7 @@ class Augmentor(object):
         elif self.type == 'none':
             self.augment = None
         else:
-            raise ValueError("Did not recognize augmentation type. Received %s, expected 'background', 'reverb', 'normal', 'distort', or 'none'." % self.type)
+            raise ValueError("Did not recognize augmentation type. Received %s, expected 'wham_weak', 'wham_strong', 'reverb_weak', 'reverb_strong', 'cascade', 'distort', or 'none'." % self.type)
 
 
     def augment_samples(self, sources):
