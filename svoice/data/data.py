@@ -66,24 +66,31 @@ class Trainset:
         self.augmentor = Augmentor(augment_type, p, cross_valid=False)
 
     def __getitem__(self, index):
-        if self.augment_type == 'none':
+        """ If index < len(self.mix_set) or augment_type is 'none', then the sample will not be augmented.
+        Otherwise (if index >= len(self.mix_set) and augment_type is not 'none') the sample will be augmented. """
+        if self.augment_type == 'none' or index < len(self.mix_set):
+            index = index % (len(self.mix_set))
             mix_sig = self.mix_set[index]
             tgt_sig = [self.sets[i][index] for i in range(len(self.sets))]
             return self.mix_set[index], torch.LongTensor([mix_sig.shape[0]]), torch.stack(tgt_sig)
         else:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
+                index = index % (len(self.mix_set))
                 mix_sig, tgt_sig = self.augmentor.augment_samples([self.sets[i][index] for i in range(len(self.sets))])
-                # if index < 19200 :
-                #     torchaudio.save(r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\svoice\egs\mix_%i.wav' % index, mix_sig, sample_rate=8000)
-                #     torchaudio.save(r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\svoice\egs\s1_%i.wav' % index, tgt_sig[0], sample_rate=8000)
-                #     torchaudio.save(r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\svoice\egs\s2_%i.wav' % index, tgt_sig[1], sample_rate=8000)
-                #     print('saved')
-                #     raise
+                # print('mix_%i' % index, mix_sig[:10])
+                # print('s1_%i' % index, tgt_sig[0][:10])
+                # print('s2_%i' % index, tgt_sig[1][:10])
+                # torchaudio.save(r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\svoice\egs\mix_%i.wav' % index, mix_sig, sample_rate=8000)
+                # torchaudio.save(r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\svoice\egs\s1_%i.wav' % index, tgt_sig[0], sample_rate=8000)
+                # torchaudio.save(r'C:\Users\brand\Documents\School\Grad_School\Year5\Semester2\Spoken_Languages\speaker_diarization\svoice\egs\s2_%i.wav' % index, tgt_sig[1], sample_rate=8000)
+                # raise
             return mix_sig, torch.LongTensor([mix_sig.shape[0]]), torch.stack(tgt_sig)
 
     def __len__(self):
-        return len(self.mix_set)
+        """ If index < len(self.mix_set), then the sample will not be augmented. If index >= len(self.mix_set), then
+        the sample will be augmented. """
+        return len(self.mix_set) * 2
 
 
 class Validset:
