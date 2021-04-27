@@ -58,18 +58,20 @@ class Augmentor(object):
         if self.type == 'none':
             mix = sum(sources)
             return(mix, sources)
-        elif self.type == 'reverb':
+        elif 'reverb' in self.type:
             for i, s in enumerate(sources):
                 transformed = torch.Tensor(self.augment(s.numpy()))
                 augment_sources.append(transformed)
             self.reverb_randomize()
-        else: # type 'normal' or 'distort' or 'background'
+        elif 'wham' in self.type or 'cascade' in self.type or 'distort' in self.type: # weak or strong 'wham', 'cascade', 'distort'
             for i, s in enumerate(sources):
                 transformed = torch.Tensor(self.augment(s.numpy(), sample_rate=self.sample_rate))
                 augment_sources.append(transformed)
                 if i == 0:
                     self.augment.freeze_parameters() # make sure all other sources gets the same augmentation
             self.augment.unfreeze_parameters() # lets the next augmentation be different
+        else:
+            raise ValueError('Did not recognize augmentation type. Received %s, expected 'wham_weak', 'wham_strong', 'reverb_weak', 'reverb_strong', 'cascade', 'distort', or 'none'." % self.type')
         augment_mix = sum(augment_sources)
         assert augment_mix.shape[0] == len(augment_sources[0]), "mixture length does not match length of sources, %i, %i" %  (augment_mix.shape[0], len(augment_sources[0]))
         return(augment_mix, augment_sources)
