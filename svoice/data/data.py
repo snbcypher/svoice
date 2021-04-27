@@ -69,7 +69,6 @@ class Trainset:
         """ If index < len(self.mix_set) or augment_type is 'none', then the sample will not be augmented.
         Otherwise (if index >= len(self.mix_set) and augment_type is not 'none') the sample will be augmented. """
         if self.augment_type == 'none' or index < len(self.mix_set):
-            index = index % (len(self.mix_set))
             mix_sig = self.mix_set[index]
             tgt_sig = [self.sets[i][index] for i in range(len(self.sets))]
             return self.mix_set[index], torch.LongTensor([mix_sig.shape[0]]), torch.stack(tgt_sig)
@@ -90,7 +89,10 @@ class Trainset:
     def __len__(self):
         """ If index < len(self.mix_set), then the sample will not be augmented. If index >= len(self.mix_set), then
         the sample will be augmented. """
-        return len(self.mix_set) * 2
+        if self.augment_type == 'none':
+            return len(self.mix_set)
+        else:
+            return len(self.mix_set) * 2
 
 
 class Validset:
